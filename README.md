@@ -1,0 +1,1 @@
+# TurkStudentCo-Data-Science-Bootcamp-SQL-Final-devi
