@@ -1,0 +1,117 @@
+CREATE TABLE members
+(
+    member_id BIGSERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255),
+    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL
+);
+
+
+
+CREATE TABLE courses 
+(
+    course_id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(200) UNIQUE NOT NULL,
+    description TEXT NOT NULL,
+    start_date DATE,
+    end_date DATE,
+    instructor_info VARCHAR(100),
+    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+CREATE TABLE categories (
+    category_id SMALLSERIAL PRIMARY KEY,
+    category_name VARCHAR(100) UNIQUE NOT NULL,
+    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE courses
+ADD COLUMN category_id SMALLINT,
+ADD CONSTRAINT fk_category
+    FOREIGN KEY (category_id)
+    REFERENCES categories(category_id);
+    
+INSERT INTO categories (category_name) VALUES
+('Yapay Zeka'),
+('Blockchain'),
+('Siber Güvenlik');
+
+
+
+CREATE TABLE enrollments (
+    enrollment_id BIGSERIAL PRIMARY KEY,
+    member_id BIGINT NOT NULL,
+    course_id BIGINT NOT NULL,
+    enrollment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_member
+        FOREIGN KEY (member_id) REFERENCES members(member_id)
+        ON DELETE CASCADE,
+    
+    CONSTRAINT fk_course
+        FOREIGN KEY (course_id) REFERENCES courses(course_id)
+        ON DELETE CASCADE
+);
+
+ALTER TABLE enrollments
+ADD CONSTRAINT unique_enrollment UNIQUE (member_id, course_id);
+
+
+
+CREATE TABLE certificates (
+    certificate_id BIGSERIAL PRIMARY KEY,
+    member_id BIGINT NOT NULL,
+    course_id BIGINT NOT NULL,
+    certificate_code VARCHAR(100) UNIQUE NOT NULL,
+    issue_date DATE DEFAULT CURRENT_DATE,
+    
+    CONSTRAINT fk_certificate_member
+        FOREIGN KEY (member_id) REFERENCES members(member_id)
+        ON DELETE CASCADE,
+    
+    CONSTRAINT fk_certificate_course
+        FOREIGN KEY (course_id) REFERENCES courses(course_id)
+        ON DELETE CASCADE
+);
+
+ALTER TABLE certificates
+ADD CONSTRAINT unique_member_course_certificate UNIQUE (member_id, course_id);
+
+
+
+CREATE TABLE certificate_assignments (
+    assignment_id BIGSERIAL PRIMARY KEY,
+    member_id BIGINT NOT NULL,
+    certificate_id BIGINT NOT NULL,
+    assignment_date DATE DEFAULT CURRENT_DATE,
+
+    CONSTRAINT fk_assignment_member
+        FOREIGN KEY (member_id) REFERENCES members(member_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_assignment_certificate
+        FOREIGN KEY (certificate_id) REFERENCES certificates(certificate_id)
+        ON DELETE CASCADE
+);
+
+ALTER TABLE certificate_assignments
+ADD CONSTRAINT unique_member_certificate UNIQUE (member_id, certificate_id);
+
+
+
+CREATE TABLE blog_posts (
+    post_id BIGSERIAL PRIMARY KEY,
+    member_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_post_author
+        FOREIGN KEY (member_id) REFERENCES members(member_id)
+        ON DELETE CASCADE
+);
